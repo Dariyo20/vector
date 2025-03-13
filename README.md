@@ -61,7 +61,7 @@ User authentication and authorization
 Role-based access control
 Email service integration
 Input validation
-
+Interview route and control with pagination
 Getting Started
 Prerequisites
 
@@ -71,8 +71,8 @@ MongoDB
 Installation
 
 Clone the repository:
-Copygit clone https://github.com/your-username/video-interview-backend.git
-cd video-interview-backend
+Copygit clone https://github.com/Dariyo20/vector.git
+cd video-interview-project-backend
 
 Install dependencies:
 npm install
@@ -84,6 +84,12 @@ Authentication
 POST /api/auth/register - Register a new user
 POST /api/auth/login - Login and receive authentication token
 GET /api/auth/me - Get current user information
+
+POST /api/interviews - Create a new interview
+GET /api/interviews - Get all interviews with pagination (page & limit query parameters)
+GET /api/interviews/:id - Get a single interview by ID
+PUT /api/interviews/:id - Update an interview by ID
+DELETE /api/interviews/:id - Delete an interview by ID
 
 Configuration
 Configuration files are located in the config/ directory:
@@ -100,19 +106,14 @@ TASK 2
 
 This API provides endpoints for managing video interview sessions. It allows users to create, retrieve, update, and delete interview sessions with titles, descriptions, and questions.
 
-## Base URL
-
-```
-https://your-api-domain.com/api
-```
 
 ## Authentication
 
 All interview-related endpoints require authentication. To authenticate, include the JWT token in the request header:
 
-```
+
 Authorization: Bearer YOUR_JWT_TOKEN
-```
+
 
 You can obtain a JWT token by logging in through the `/api/auth/login` endpoint.
 
@@ -126,7 +127,7 @@ You can obtain a JWT token by logging in through the `/api/auth/login` endpoint.
 POST /auth/register
 ```
 
-**Request Body:**
+Request Body:
 
 ```json
 {
@@ -152,9 +153,7 @@ POST /auth/register
 
 #### Login
 
-```
 POST /auth/login
-```
 
 **Request Body:**
 
@@ -287,11 +286,11 @@ GET /interviews
 }
 ```
 
-#### Get Single Interview
+Get Single Interview
 
-```
+
 GET /interviews/:id
-```
+
 
 **Response:**
 

@@ -35,16 +35,57 @@ exports.createInterview = async (req, res) => {
   }
 };
 
-// @desc    Get all interviews (for current user)
+// @desc    Get all interviews (for current user) with pagination
 // @route   GET /api/interviews
 // @access  Private
 exports.getInterviews = async (req, res) => {
   try {
-    const interviews = await Interview.find({ creator: req.user.id });
+    // Pagination parameters
+    const page = parseInt(req.query.page, 10) || 1;
+    const limit = parseInt(req.query.limit, 10) || 10;
+    const startIndex = (page - 1) * limit;
+    const endIndex = page * limit;
+    
+    // Query to find interviews for current user
+    const query = { creator: req.user.id };
+    
+    // Get total count of interviews
+    const total = await Interview.countDocuments(query);
+    
+    // Find interviews with pagination
+    const interviews = await Interview.find(query)
+      .skip(startIndex)
+      .limit(limit)
+      .sort({ createdAt: -1 }); // Sort by most recent first
+    
+    // Pagination result
+    const pagination = {};
+    
+    // Add next page if available
+    if (endIndex < total) {
+      pagination.next = {
+        page: page + 1,
+        limit
+      };
+    }
+    
+    // Add previous page if available
+    if (startIndex > 0) {
+      pagination.prev = {
+        page: page - 1,
+        limit
+      };
+    }
     
     res.status(200).json({
       success: true,
       count: interviews.length,
+      pagination: {
+        ...pagination,
+        total,
+        totalPages: Math.ceil(total / limit),
+        currentPage: page
+      },
       data: interviews
     });
   } catch (error) {

@@ -1,7 +1,7 @@
 // Default configuration values (fallback if env variables are not set)
 module.exports = {
     jwt: {
-      secret: process.env.JWT_SECRET || 'your_jwt_secret_key_here',
+      secret: process.env.JWT_SECRET 
       expiresIn: process.env.JWT_EXPIRES_IN || '30d',
     },
     passwordReset: {
