@@ -655,3 +655,267 @@ All passwords are hashed using bcrypt
 API communications should be conducted over HTTPS
 JWT tokens expire after 24 hours
 Sensitive data is not exposed in responses
+
+
+📹 Video API Endpoints
+Get Cloudinary Signature
+CopyGET /api/video/signature
+Returns a signature for direct frontend upload to Cloudinary.
+Response
+json{
+  "success": true,
+  "timestamp": 1647512345,
+  "signature": "generated_signature_string",
+  "apiKey": "cloudinary_api_key",
+  "cloudName": "cloudinary_cloud_name"
+}
+Save Video Metadata
+CopyPOST /api/video
+Request Body
+json{
+  "interview": "interview_id",
+  "question": "Interview question text",
+  "questionIndex": 1,
+  "videoUrl": "https://res.cloudinary.com/cloud_name/video/upload/v1234567/video_id.mp4",
+  "cloudinaryId": "video_id",
+  "duration": 120,
+  "size": 10485760
+}
+Response
+json{
+  "success": true,
+  "data": {
+    "_id": "video_response_id",
+    "interview": "interview_id",
+    "question": "Interview question text",
+    "questionIndex": 1,
+    "videoUrl": "cloudinary_video_url",
+    "cloudinaryId": "cloudinary_resource_id",
+    "duration": 120,
+    "size": 10485760,
+    "user": "user_id",
+    "status": "ready",
+    "createdAt": "2023-01-01T00:00:00.000Z",
+    "updatedAt": "2023-01-01T00:00:00.000Z"
+  }
+}
+Get Video Responses by Interview
+CopyGET /api/video/interview/:interviewId
+Response
+json{
+  "success": true,
+  "count": 3,
+  "data": [
+    {
+      "_id": "video_response_id_1",
+      "interview": "interview_id",
+      "question": "Question 1",
+      "questionIndex": 0,
+      "videoUrl": "cloudinary_video_url_1",
+      "cloudinaryId": "cloudinary_resource_id_1",
+      "duration": 60,
+      "size": 5242880,
+      "user": "user_id",
+      "status": "ready",
+      "createdAt": "2023-01-01T00:00:00.000Z",
+      "updatedAt": "2023-01-01T00:00:00.000Z"
+    },
+    // More video responses...
+  ]
+}
+Delete Video Response
+CopyDELETE /api/video/:id
+Response
+json{
+  "success": true,
+  "data": {}
+}
+
+
+
+🔄 Frontend Integration
+Video Upload Flow
+
+Request a signature from the server (GET /api/video/signature)
+Use the signature to upload directly to Cloudinary from the frontend
+Once upload is complete, save the video metadata to your server (POST /api/video)
+Use the returned video response ID to associate the video with the interview
+
+
+
+Taks 5
+
+Evaluation API Endpoints
+Submit Evaluation
+POST /api/evaluations
+Creates a new evaluation for a video response.
+Required Authentication: Bearer token (JWT)
+Required Role: Evaluator or Admin
+Request Body:
+jsonCopy{
+  "videoResponse": "video_response_id",
+  "score": 8,
+  "comments": "Good communication skills and technical knowledge. Could improve on problem-solving approach."
+}
+Response (201 Success):
+jsonCopy{
+  "success": true,
+  "data": {
+    "_id": "evaluation_id",
+    "videoResponse": "video_response_id",
+    "evaluator": "evaluator_user_id",
+    "score": 8,
+    "comments": "Good communication skills and technical knowledge. Could improve on problem-solving approach.",
+    "createdAt": "2023-01-01T00:00:00.000Z",
+    "updatedAt": "2023-01-01T00:00:00.000Z"
+  }
+}
+Get Evaluations for a Video Response
+GET /api/evaluations/video/:videoResponseId
+Returns all evaluations for a specific video response.
+Required Authentication: Bearer token (JWT)
+Response (200 Success):
+jsonCopy{
+  "success": true,
+  "count": 2,
+  "data": [
+    {
+      "_id": "evaluation_id_1",
+      "videoResponse": "video_response_id",
+      "evaluator": {
+        "_id": "user_id_1",
+        "name": "John Doe",
+        "email": "john@example.com"
+      },
+      "score": 8,
+      "comments": "Good communication skills and technical knowledge.",
+      "createdAt": "2023-01-01T00:00:00.000Z",
+      "updatedAt": "2023-01-01T00:00:00.000Z"
+    },
+    {
+      "_id": "evaluation_id_2",
+      "videoResponse": "video_response_id",
+      "evaluator": {
+        "_id": "user_id_2",
+        "name": "Jane Smith",
+        "email": "jane@example.com"
+      },
+      "score": 7,
+      "comments": "Shows potential but needs improvement in expressing technical concepts.",
+      "createdAt": "2023-01-02T00:00:00.000Z",
+      "updatedAt": "2023-01-02T00:00:00.000Z"
+    }
+  ]
+}
+Get Evaluations for an Interview
+GET /api/evaluations/interview/:interviewId
+Returns all evaluations across all video responses for a specific interview.
+Required Authentication: Bearer token (JWT)
+Response (200 Success):
+jsonCopy{
+  "success": true,
+  "count": 5,
+  "data": [
+    {
+      "_id": "evaluation_id_1",
+      "videoResponse": {
+        "_id": "video_response_id_1",
+        "question": "What is your experience with React?",
+        "questionIndex": 0,
+        "user": {
+          "_id": "applicant_id_1",
+          "name": "John Applicant",
+          "email": "john@example.com"
+        }
+      },
+      "evaluator": {
+        "_id": "evaluator_id_1",
+        "name": "Eva Evaluator",
+        "email": "eva@example.com"
+      },
+      "score": 8,
+      "comments": "Good understanding of React concepts.",
+      "createdAt": "2023-01-01T00:00:00.000Z",
+      "updatedAt": "2023-01-01T00:00:00.000Z"
+    },
+    // More evaluation objects...
+  ]
+}
+Get Evaluation Statistics
+GET /api/evaluations/stats/interview/:interviewId
+Returns aggregated statistics for all evaluations in an interview.
+Required Authentication: Bearer token (JWT)
+Response (200 Success):
+jsonCopy{
+  "success": true,
+  "overallStats": {
+    "totalEvaluations": 15,
+    "averageScore": 7.8,
+    "videoResponsesEvaluated": 6,
+    "totalVideoResponses": 8
+  },
+  "videoResponseStats": [
+    {
+      "_id": "video_response_id_1",
+      "question": "What is your experience with React?",
+      "questionIndex": 0,
+      "applicant": {
+        "_id": "applicant_id_1",
+        "name": "John Applicant",
+        "email": "john@example.com"
+      },
+      "averageScore": 8.5,
+      "minScore": 7,
+      "maxScore": 10,
+      "evaluationCount": 3
+    },
+    // More video response stats...
+  ]
+}
+Update Evaluation
+PUT /api/evaluations/:id
+Updates an existing evaluation.
+Required Authentication: Bearer token (JWT)
+Request Body:
+jsonCopy{
+  "score": 9,
+  "comments": "Updated review after second viewing. Excellent technical knowledge."
+}
+Response (200 Success):
+jsonCopy{
+  "success": true,
+  "data": {
+    "_id": "evaluation_id",
+    "videoResponse": "video_response_id",
+    "evaluator": "evaluator_user_id",
+    "score": 9,
+    "comments": "Updated review after second viewing. Excellent technical knowledge.",
+    "createdAt": "2023-01-01T00:00:00.000Z",
+    "updatedAt": "2023-01-03T00:00:00.000Z"
+  }
+}
+Delete Evaluation
+DELETE /api/evaluations/:id
+Deletes an evaluation.
+Required Authentication: Bearer token (JWT)
+Response (200 Success):
+jsonCopy{
+  "success": true,
+  "data": {}
+}
+Authorization Rules
+
+Only users with the role of "evaluator" or "admin" can create evaluations
+Users can only update or delete their own evaluations (unless they are admins)
+Only authorized users (interview creator, evaluators, and admins) can view evaluations
+Each evaluator can submit only one evaluation per video response
+
+Data Model
+javascriptCopy{
+  "videoResponse": "ObjectId (reference to VideoResponse model)",
+  "evaluator": "ObjectId (reference to User model)",
+  "score": "Number (1-10)",
+  "comments": "String",
+  "createdAt": "Date",
+  "updatedAt": "Date"
+}
