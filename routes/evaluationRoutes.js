@@ -10,7 +10,7 @@ const {
 } = require('../controllers/evaluationController');
 
 // Import middleware
-const { auth } = require('../middleware/auth');
+const { auth } = require('../middlewares/auth');
 
 const router = express.Router();
 
@@ -18,7 +18,7 @@ const router = express.Router();
 router.post(
   '/',
   [
-    protect,
+    auth,
     [
       check('videoResponse', 'Video response ID is required').not().isEmpty(),
       check('score', 'Score is required and must be between 1 and 10').isInt({ min: 1, max: 10 }),
@@ -29,19 +29,19 @@ router.post(
 );
 
 // Get all evaluations for a video response
-router.get('/video/:videoResponseId', protect, getEvaluationsByVideo);
+router.get('/video/:videoResponseId', auth, getEvaluationsByVideo);
 
 // Get all evaluations for an interview
-router.get('/interview/:interviewId', protect, getEvaluationsByInterview);
+router.get('/interview/:interviewId', auth, getEvaluationsByInterview);
 
 // Get evaluation statistics for an interview
-router.get('/stats/interview/:interviewId', protect, getInterviewStats);
+router.get('/stats/interview/:interviewId', auth, getInterviewStats);
 
 // Update an evaluation
 router.put(
   '/:id',
   [
-    protect,
+    auth,
     [
       check('score', 'Score is required and must be between 1 and 10').isInt({ min: 1, max: 10 }),
       check('comments', 'Comments are required').not().isEmpty().trim()
@@ -51,6 +51,6 @@ router.put(
 );
 
 // Delete an evaluation
-router.delete('/:id', protect, deleteEvaluation);
+router.delete('/:id', auth, deleteEvaluation);
 
 module.exports = router;

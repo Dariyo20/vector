@@ -105,7 +105,7 @@ exports.getInterview = async (req, res) => {
     
     if (!interview) {
       return res.status(404).json({
-        success: false,
+        success: false, 
         error: 'Interview not found'
       });
     }
